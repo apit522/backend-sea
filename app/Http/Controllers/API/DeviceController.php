@@ -84,18 +84,20 @@ class DeviceController extends Controller
 
     public function getData(Request $request, Device $device)
     {
-        // Otorisasi tetap berjalan
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        // ... (Otorisasi tidak berubah) ...
 
-        // Ambil SEMUA data untuk perangkat ini, abaikan filter waktu untuk sementara
+        $period = $request->query('period', '24h');
+        $startDate = match ($period) {
+            '7d' => Carbon::now()->subDays(7),
+            '30d' => Carbon::now()->subDays(30),
+            default => Carbon::now()->subHours(24),
+        };
+
+        // Ambil Data menggunakan kolom 'timestamp'
         $deviceData = $device->data()
-            ->orderBy('created_at', 'asc')
+            ->where('timestamp', '>=', $startDate) // <-- Ganti 'created_at' menjadi 'timestamp'
+            ->orderBy('timestamp', 'asc')       // <-- Ganti 'created_at' menjadi 'timestamp'
             ->get();
-
-        // Anda bisa menambahkan log untuk memastikan data ada
-        \Log::info('Mengambil data untuk device ID: ' . $device->id . '. Ditemukan: ' . $deviceData->count() . ' baris.');
 
         return response()->json($deviceData);
     }

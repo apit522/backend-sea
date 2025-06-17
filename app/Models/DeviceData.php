@@ -1,29 +1,38 @@
 <?php
-// app/Models/DeviceData.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use DateTimeInterface;
 
 class DeviceData extends Model
 {
     use HasFactory;
 
-    const UPDATED_AT = null;
-    protected $fillable = [ /* ... */];
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false; // <-- PENTING: Set ke false
+
+    protected $fillable = [
+        'device_id',
+        'watt',
+        'temperature',
+        'voltage',
+        'current',
+        'timestamp', // <-- Tambahkan 'timestamp' ke fillable
+    ];
 
     /**
-     * Prepare a date for array / JSON serialization.
+     * The attributes that should be cast.
      *
-     * @param  \DateTimeInterface  $date
-     * @return string
+     * @var array
      */
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        // Format tanggal menjadi string tanpa informasi timezone
-        return $date->format('Y-m-d H:i:s');
-    }
+    protected $casts = [
+        'timestamp' => 'datetime', // <-- Beritahu Laravel agar memperlakukan kolom ini sebagai objek DateTime/Carbon
+    ];
 
     public function device()
     {
