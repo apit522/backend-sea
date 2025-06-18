@@ -4,9 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 
 class DeviceData extends Model
 {
@@ -25,7 +22,7 @@ class DeviceData extends Model
         'temperature',
         'voltage',
         'current',
-        'timestamp',
+        'timestamp', // <-- Tambahkan 'timestamp' ke fillable
     ];
 
     /**
@@ -34,31 +31,11 @@ class DeviceData extends Model
      * @var array
      */
     protected $casts = [
-        'watt' => 'decimal:2',
-        'temperature' => 'decimal:2',
-        'voltage' => 'decimal:2',
-        'current' => 'decimal:2',
-        'timestamp' => 'datetime',
+        'timestamp' => 'datetime', // <-- Beritahu Laravel agar memperlakukan kolom ini sebagai objek DateTime/Carbon
     ];
-
 
     public function device()
     {
         return $this->belongsTo(Device::class);
     }
-
-    public function scopeCurrentMonth(Builder $query): Builder
-    {
-        return $query->whereBetween('timestamp', [
-            now()->startOfMonth(),
-            now()->endOfMonth()
-        ]);
-    }
-
-    public function scopeLast24Hours(Builder $query): Builder
-    {
-        return $query->where('timestamp', '>=', now()->subDay());
-    }
-
-
 }
