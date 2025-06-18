@@ -17,10 +17,13 @@ class Device extends Model
      */
     protected $fillable = [
         'name',
+        'location',
         'unique_id',
         'btu',
         'user_id',
         'last_seen_at',
+        'daya_va',
+        'tarif_per_kwh',
     ];
 
     /**

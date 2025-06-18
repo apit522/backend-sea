@@ -39,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('devices', DeviceController::class);
     Route::get('/devices/{device}/data', [DeviceController::class, 'getData']);
+    Route::get('/devices/{device}/hourly-data', [DeviceController::class, 'getHourlyData']);
+    Route::get('/devices/{device}/latest-data', [DeviceController::class, 'getLatestData']);
 });
 
 // Rute yang tidak perlu auth
