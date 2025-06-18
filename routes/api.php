@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\DeviceController;
+use App\Http\Controllers\Api\DeviceDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/devices/{device}/data', [DeviceController::class, 'getData']);
     Route::get('/devices/{device}/hourly-data', [DeviceController::class, 'getHourlyData']);
     Route::get('/devices/{device}/latest-data', [DeviceController::class, 'getLatestData']);
+    Route::get('/devices/{device}/raw-data', [DeviceDataController::class, 'getRawData']);
+    Route::get('/devices/{device}/summary', [DeviceDataController::class, 'getSummary']);
 });
 
 // Rute yang tidak perlu auth
