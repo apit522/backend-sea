@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\DeviceController;
+use App\Http\Controllers\Api\DeviceDataController;
+use App\Http\Controllers\PredictionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,17 +19,6 @@ use App\Http\Controllers\API\DeviceController;
 |
 */
 
-
-// // Rute yang perlu auth
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); // Logout sebaiknya di-protect
-// Route::post('/user/profile', [App\Http\Controllers\API\AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
-// Route::post('/user/change-password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
-
-// Route::apiResource('devices', DeviceController::class);
-
 // Rute yang perlu auth
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -39,6 +30,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('devices', DeviceController::class);
     Route::get('/devices/{device}/data', [DeviceController::class, 'getData']);
+    Route::get('/devices/{device}/raw-data', [DeviceDataController::class, 'getRawData']);
+    Route::get('/devices/{device}/summary', [DeviceDataController::class, 'getSummary']);
+    Route::get('/devices/{device}/hourly-data', [DeviceController::class, 'getHourlyData']);
+    Route::get('/devices/{device}/latest-data', [DeviceController::class, 'getLatestData']);
 });
 
 // Rute yang tidak perlu auth
@@ -46,3 +41,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
+Route::post('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);
+Route::get('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);

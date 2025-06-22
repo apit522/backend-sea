@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->float('temperature');
             $table->float('voltage');
             $table->float('current');
-            $table->timestamps(); // Ini akan membuat kolom created_at dan updated_at
+            $table->timestamp('timestamp');
         });
     }
 

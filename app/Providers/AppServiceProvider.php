@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Providers;
+use App\Models\DeviceData;
+use App\Observers\DeviceDataObserver;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        DeviceData::observe(DeviceDataObserver::class);
     }
+
 }
