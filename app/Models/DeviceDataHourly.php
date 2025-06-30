@@ -17,6 +17,13 @@ class DeviceDataHourly extends Model
     protected $table = 'device_data_hourly';
 
     /**
+     * Menunjukkan jika model tidak menggunakan timestamps (created_at, updated_at).
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * Atribut yang dapat diisi secara massal.
      *
      * @var array<int, string>
@@ -24,6 +31,7 @@ class DeviceDataHourly extends Model
     protected $fillable = [
         'device_id',
         'hour_timestamp',
+        'samples_count',
         'watt_avg',
         'voltage_avg',
         'current_avg',
@@ -44,6 +52,6 @@ class DeviceDataHourly extends Model
         'current_avg' => 'float',
         'temperature_avg' => 'float',
         'kwh_total' => 'float',
-        'cost_total' => 'float', // atau 'decimal:2' agar sesuai dengan migrasi
+        'cost_total' => 'float',
     ];
 }
