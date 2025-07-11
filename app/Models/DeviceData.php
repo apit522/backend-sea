@@ -17,7 +17,7 @@ class DeviceData extends Model
      *
      * @var bool
      */
-    public $timestamps = false; // <-- PENTING: Set ke false
+    public $timestamps = false;
 
     protected $fillable = [
         'device_id',
@@ -38,7 +38,7 @@ class DeviceData extends Model
         'temperature' => 'float',
         'voltage' => 'float',
         'current' => 'float',
-        'timestamp' => 'datetime', // Pastikan timestamp juga di-cast
+        'timestamp' => 'datetime',
     ];
 
 

@@ -15,24 +15,18 @@ class DeviceDataObserver
         $device = $deviceData->device;
 
         // 1. Update timestamp 'last_seen_at' di tabel devices
-        $device->touch('last_seen_at'); // 'touch' adalah cara cepat untuk update timestamp
+        $device->touch();
 
-        // 2. Hitung dan update efisiensi EER berdasarkan rata-rata 10 menit terakhir
+        // 2. Hitung dan update efisiensi EER berdasarkan watt tertinggi (peak) 10 menit terakhir
         if ($device->btu > 0) {
-            // Ambil semua data dari 10 menit terakhir untuk perangkat ini
-            $recentData = $device->data()
+            // Ambil nilai watt tertinggi dari 10 menit terakhir
+            $peakWattRecent = $device->data()
                 ->where('timestamp', '>=', now()->subMinutes(10))
-                ->get();
+                ->max('watt');
 
-            // Hitung rata-rata watt dari data tersebut
-            $avgWattRecent = $recentData->avg('watt');
-
-            if ($avgWattRecent > 0) { // Hindari pembagian dengan nol
-                // Rumus EER: (BTU/jam) / Watt
-                // Faktor 0.293... adalah untuk konversi BTU/h ke Watt, tapi karena kita
-                // membandingkan BTU/h dengan Watt, kita tidak perlu konversi ini.
-                // EER yang umum diukur dalam (BTU/h) / Watt.
-                $efficiency = $device->btu / $avgWattRecent;
+            if ($peakWattRecent > 0) {
+                // Rumus EER: (BTU/jam) / Peak Watt
+                $efficiency = $device->btu / $peakWattRecent;
 
                 // Gunakan updateOrCreate untuk membuat atau mengupdate data tren
                 $device->trendingData()->updateOrCreate(

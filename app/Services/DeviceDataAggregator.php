@@ -186,17 +186,23 @@ class DeviceDataAggregator
 
     protected function updateTrendingData(Device $device): void
     {
+        // 1. Ambil ringkasan data untuk hari ini
         $summaryToday = $device->dailySummaries()
             ->whereDate('summary_date', today())
             ->first();
 
-        $avgWatt24h = $summaryToday ? $summaryToday->avg_watt : $device->data()->last24Hours()->avg('watt');
+        // 2. Ambil watt tertinggi (peak watt) dari ringkasan hari ini
+        // Ini adalah representasi peak watt dari 24 jam terakhir
+        $peakWatt24h = $summaryToday ? $summaryToday->max_watt : null;
 
+        // 3. Hitung EER berdasarkan Peak Watt 24 jam
         $efficiency = null;
-        if ($device->btu > 0 && $avgWatt24h > 0) {
-            $efficiency = $device->btu / $avgWatt24h;
+        if ($device->btu > 0 && $peakWatt24h > 0) {
+            // Rumus EER: Kapasitas Pendingin (BTU/h) / Daya Input (Peak Watt)
+            $efficiency = $device->btu / $peakWatt24h;
         }
 
+        // 4. Ambil data tren lainnya (kWh)
         $last7d_kwh = $device->dailySummaries()
             ->whereBetween('summary_date', [today()->subDays(6), today()])
             ->sum('total_kwh');
@@ -205,14 +211,56 @@ class DeviceDataAggregator
             ->whereBetween('summary_date', [today()->subDays(29), today()])
             ->sum('total_kwh');
 
+        // 5. Simpan semua hasil ke tabel device_trending_data
         DeviceTrendingData::updateOrCreate(
             ['device_id' => $device->id],
             [
-                'last_24h_kwh' => optional($summaryToday)->total_kwh ?? 0,
+                'last_24h_kwh' => $summaryToday->total_kwh ?? 0,
                 'last_7d_kwh' => $last7d_kwh,
                 'last_30d_kwh' => $last30d_kwh,
-                'current_efficiency' => $efficiency
+                'current_efficiency' => $efficiency // Menyimpan EER yang sudah dihitung
             ]
         );
     }
+
+    // protected function updateTrendingData(Device $device): void
+    // {
+    //     // Ambil ringkasan harian untuk hari ini (24 jam terakhir)
+    //     $summaryToday = $device->dailySummaries()
+    //         ->whereDate('summary_date', today())
+    //         ->first();
+
+    //     // Ambil nilai watt tertinggi (peak watt) dari ringkasan hari ini.
+    //     // Jika belum ada ringkasan (misalnya, proses berjalan di awal hari),
+    //     // maka kita hitung manual dari data mentah 24 jam terakhir.
+    //     $peakWatt24h = $summaryToday
+    //         ? $summaryToday->max_watt
+    //         : $device->data()->last24Hours()->max('watt');
+
+    //     // Hitung EER berdasarkan Peak Watt 24 jam
+    //     $efficiency = null;
+    //     if ($device->btu > 0 && $peakWatt24h > 0) {
+    //         $efficiency = $device->btu / $peakWatt24h;
+    //     }
+
+    //     // Ambil total kWh untuk 7 dan 30 hari terakhir dari ringkasan harian
+    //     $last7d_kwh = $device->dailySummaries()
+    //         ->whereBetween('summary_date', [today()->subDays(6), today()])
+    //         ->sum('total_kwh');
+
+    //     $last30d_kwh = $device->dailySummaries()
+    //         ->whereBetween('summary_date', [today()->subDays(29), today()])
+    //         ->sum('total_kwh');
+
+    //     // Update atau buat data tren dengan semua nilai yang sudah dihitung
+    //     DeviceTrendingData::updateOrCreate(
+    //         ['device_id' => $device->id],
+    //         [
+    //             'last_24h_kwh' => $summaryToday->total_kwh ?? 0,
+    //             'last_7d_kwh' => $last7d_kwh,
+    //             'last_30d_kwh' => $last30d_kwh,
+    //             'current_efficiency' => $efficiency
+    //         ]
+    //     );
+    // }
 }

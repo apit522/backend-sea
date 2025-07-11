@@ -31,6 +31,9 @@ class Device extends Model
 
     protected $casts = [
         'last_seen_at' => 'datetime',
+        'btu' => 'integer',
+        'daya_va' => 'integer',
+        'tarif_per_kwh' => 'float',
     ];
 
 
