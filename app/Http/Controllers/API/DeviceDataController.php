@@ -1,6 +1,6 @@
 <?php
 // app/Http/Controllers/Api/DeviceDataController.php
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Device;
@@ -10,13 +10,10 @@ use Carbon\Carbon;
 
 class DeviceDataController extends Controller
 {
-    // Method untuk mengambil data mentah (misal untuk grafik real-time detail)
     public function getRawData(Device $device, Request $request)
     {
         // Otorisasi: pastikan user hanya bisa melihat data perangkatnya
-        if ($device->user_id !== auth()->id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
 
         $query = $device->data()
             ->orderBy('timestamp', 'desc')
@@ -28,11 +25,6 @@ class DeviceDataController extends Controller
     // Method untuk mendapatkan ringkasan data yang sudah diagregasi
     public function getSummary(Device $device, Request $request)
     {
-        // Otorisasi
-        if ($device->user_id !== auth()->id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
         $range = $request->input('range', 'daily');
 
         return match ($range) {

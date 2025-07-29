@@ -29,7 +29,7 @@ class DeviceController extends Controller
             'location' => 'nullable|string|max:255',
             'unique_id' => 'required|string|max:255|unique:devices',
             'btu' => 'nullable|integer',
-            'daya_va' => 'required|integer', // 'tarif_per_kwh' tidak lagi divalidasi dari input user
+            'daya_va' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -67,9 +67,7 @@ class DeviceController extends Controller
     public function show(Device $device)
     {
         // Pastikan user hanya bisa melihat perangkat miliknya
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
         return response()->json($device);
     }
 
@@ -77,9 +75,7 @@ class DeviceController extends Controller
     public function update(Request $request, Device $device)
     {
         // Otorisasi
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -123,9 +119,7 @@ class DeviceController extends Controller
     public function destroy(Device $device)
     {
         // Pastikan user hanya bisa menghapus perangkat miliknya
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
 
         $device->delete();
 
@@ -134,7 +128,6 @@ class DeviceController extends Controller
 
     public function getData(Request $request, Device $device)
     {
-        // ... (Otorisasi tidak berubah) ...
 
         $period = $request->query('period', '24h');
         $startDate = match ($period) {
@@ -143,7 +136,6 @@ class DeviceController extends Controller
             default => Carbon::now()->subHours(24),
         };
 
-        // Ambil Data menggunakan kolom 'timestamp'
         $deviceData = $device->data()
             ->where('timestamp', '>=', $startDate)
             ->orderBy('timestamp', 'asc')
@@ -153,9 +145,7 @@ class DeviceController extends Controller
     }
     public function getHourlyData(Request $request, Device $device)
     {
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
 
         $request->validate(['date' => 'required|date_format:Y-m-d']);
         $date = Carbon::parse($request->query('date'));
@@ -226,14 +216,16 @@ class DeviceController extends Controller
     //     return response()->json($hourlyData);
     // }
 
-    public function getLatestData(Device $device)
+    public function getLatestData(Request $request, Device $device)
     {
-        if ($device->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+
 
         $latestData = $device->data()->latest('timestamp')->first();
 
-        return response()->json($latestData);
+        return response()->json([
+            'user_id' => $request->user()->id,
+            'device_id' => $device->id,
+            'latest_data' => $latestData,
+        ]);
     }
 }

@@ -1,23 +1,13 @@
 <?php
-
+//routes\api.php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\DeviceController;
-use App\Http\Controllers\Api\DeviceDataController;
+use App\Http\Controllers\API\DeviceDataController;
 use App\Http\Controllers\PredictionController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 // Rute yang perlu auth
 Route::middleware('auth:sanctum')->group(function () {
