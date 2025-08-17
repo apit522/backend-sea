@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('sanctum:prune-expired --hours=24')->daily();
+
         $schedule->command('app:aggregate-hourly-data')->hourly();
 
         $schedule->command('app:process-summaries')->dailyAt('01:00');

@@ -32,5 +32,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
-Route::post('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);
-Route::get('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);
+// Route::post('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);
+// Route::get('/predict-usage/{device}', [PredictionController::class, 'predictTomorrow']);
+Route::get('/predict-usage/{device}/{date?}', [PredictionController::class, 'getPrediction']);

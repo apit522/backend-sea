@@ -19,7 +19,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed', // 'password_confirmation' field is needed
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -32,17 +32,18 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Buat token (Laravel Sanctum direkomendasikan untuk API)
-        // Pastikan Anda sudah menginstal Sanctum: composer require laravel/sanctum
-        // Dan sudah menjalankan: php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
-        // Dan sudah menambahkan HasApiTokens trait di User model
-        $token = $user->createToken('authToken')->plainTextToken;
+        // Buat token dengan expiration
+        $token = $user->createToken('authToken', ['*'], now()->addMinutes(config('sanctum.expiration')))->plainTextToken;
+
+        // Dapatkan waktu expired dari token yang baru dibuat
+        $tokenModel = $user->tokens()->latest()->first();
 
         return response()->json([
             'message' => 'User registered successfully',
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'expires_at' => $tokenModel->expires_at?->toDateTimeString(),
         ], 201);
     }
 
@@ -62,13 +63,16 @@ class AuthController extends Controller
         }
 
         $user = User::where('name', $request->name)->firstOrFail();
-        $token = $user->createToken('authToken')->plainTextToken;
+        $token = $user->createToken('authToken', ['*'], now()->addMinutes(config('sanctum.expiration')))->plainTextToken;
+
+        $tokenModel = $user->tokens()->latest()->first();
 
         return response()->json([
             'message' => 'Login successful',
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'expires_at' => $tokenModel->expires_at?->toDateTimeString(),
         ]);
     }
 
